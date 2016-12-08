@@ -3,6 +3,8 @@ require 'faraday'
 require 'json'
 require 'csv'
 
+# See https://members.orcid.org/api/tutorial-retrieve-data-using-public-api
+
 if ARGV.length < 2
   puts 'Please provide the ORCID client_id and client_secret, like this: ruby orcid.rb ID SECRET'
 else
@@ -15,12 +17,13 @@ else
   fl = File.open("unclaimed-orcids.csv", "w+")
   fc = File.open("claimed-orcids.csv", "w+")
 
-# write header row
+# write header row for each file
   fl.write('orcid,first,last,dept,creation method')
   fl.write("\n")
   fc.write('orcid,first,last,dept,creation method')
   fc.write("\n")
 
+  # get the oauth access token
   conn = Faraday.new(:url => 'https://api.orcid.org') do |faraday|
     faraday.request :url_encoded # form-encode POST params
     faraday.response :logger # log requests to STDOUT
@@ -47,6 +50,7 @@ else
 
     puts "Checking number #{index}, #{o[1]} (#{o[2]})"
 
+    # retrieve the public orcid xml
     response = conn.get do |req|
       req.url '/v1.2/' + orcid
       req.headers['Content-Type'] = 'application/orcid+xml'
