@@ -21,8 +21,9 @@ Get the ORCID xml from ORCID for each ID.
 
 Parse the XML and check if it's been claimed or not.
 
-If it hasn't, write a line into a new csv file called 'unclaimed-orcids.csv'.
+If it hasn't been claimed, write a line into a new csv file called 'unclaimed-orcids.csv'.
+If it has been claimed, write a line into a new csv file called 'claimed-orcids.csv'.
 
 It takes a while to run.
 
-When it's done, send the file to RST.
+When it's done, send the two files to RST.
