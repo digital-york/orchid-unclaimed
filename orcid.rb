@@ -23,21 +23,26 @@ else
   fc.write('orcid,first,last,dept,creation method')
   fc.write("\n")
 
-  # get the oauth access token
+# get the oauth access token
   conn = Faraday.new(:url => 'https://api.orcid.org') do |faraday|
     faraday.request :url_encoded # form-encode POST params
     faraday.response :logger # log requests to STDOUT
     faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
   end
 
-  response = conn.post '/oauth/token', {
-      :client_id => client_id,
-      :client_secret => client_secret,
-      :scope => "/read-public",
-      :grant_type => "client_credentials"
-  }
+  begin
+    response = conn.post '/oauth/token', {
+        :client_id => client_id,
+        :client_secret => client_secret,
+        :scope => "/read-public",
+        :grant_type => "client_credentials"
+    }
 
-  token = JSON.parse(response.body)['access_token']
+    token = JSON.parse(response.body)['access_token']
+
+  rescue
+    abort("Something went wrong when tring to get the authentication token. Please check the id and secret. Error was #{$!}")
+  end
 
   conn = Faraday.new(:url => 'https://pub.orcid.org') do |faraday|
     faraday.request :url_encoded # form-encode POST params
@@ -49,43 +54,46 @@ else
     orcid = o[2]
 
     puts "Checking number #{index}, #{o[1]} (#{o[2]})"
-
-    # retrieve the public orcid xml
-    response = conn.get do |req|
-      req.url '/v1.2/' + orcid
-      req.headers['Content-Type'] = 'application/orcid+xml'
-      req.headers['Authorization'] = 'Bearer ' + token
-    end
-
-    orcid_xml = response.body
-
-    @doc = Nokogiri::XML(orcid_xml)
-
-    line = orcid + ','
-
-    @doc.css('orcid-message orcid-profile').each do |i|
-
-      i.css('orcid-bio personal-details given-names').each do |g|
-        line += g.text + ','
+    begin
+      # retrieve the public orcid xml
+      response = conn.get do |req|
+        req.url '/v1.2/' + orcid
+        req.headers['Content-Type'] = 'application/orcid+xml'
+        req.headers['Authorization'] = 'Bearer ' + token
       end
 
-      i.css('orcid-bio personal-details family-name').each do |s|
-        line += s.text + ','
-      end
+      orcid_xml = response.body
 
-      line += o[0] + ','
+      @doc = Nokogiri::XML(orcid_xml)
 
-      i.css('orcid-history creation-method').each do |c|
-        line += c.text
-      end
+      line = orcid + ','
 
-      i.css('orcid-history claimed').each do |c|
-        if c.text == 'false'
-          fl.write(line + "\n")
-        else
-          fc.write(line + "\n")
+      @doc.css('orcid-message orcid-profile').each do |i|
+
+        i.css('orcid-bio personal-details given-names').each do |g|
+          line += g.text + ','
+        end
+
+        i.css('orcid-bio personal-details family-name').each do |s|
+          line += s.text + ','
+        end
+
+        line += o[0] + ','
+
+        i.css('orcid-history creation-method').each do |c|
+          line += c.text
+        end
+
+        i.css('orcid-history claimed').each do |c|
+          if c.text == 'false'
+            fl.write(line + "\n")
+          else
+            fc.write(line + "\n")
+          end
         end
       end
+    rescue
+      abort("Someting went wrong when checking number #{index}, #{o[1]} (#{o[2]}). Error was #{$!}")
     end
 
   end
