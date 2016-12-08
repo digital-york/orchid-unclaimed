@@ -42,8 +42,10 @@ else
     faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
   end
 
-  orcids_list.each do |o|
+  orcids_list.each_with_index do |o, index|
     orcid = o[2]
+
+    puts "Checking number #{index}, #{o[1]} (#{o[2]})"
 
     response = conn.get do |req|
       req.url '/v1.2/' + orcid
