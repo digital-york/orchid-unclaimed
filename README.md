@@ -3,7 +3,7 @@ Ruby script to identify unclaimed ids in ORCID.
 
 ## Pre-requisites
 
-* gems: nokogiri, csv, json, faraday (run gem install for each)
+* gems: nokogiri, json, faraday (run gem install for each)
 * An ORCID report from PURE - the Research Support Team will provide this.
 * The report MUST have Department in column 1 and ORCID in column 3. Nothing else matters.
 
@@ -14,7 +14,7 @@ Ruby script to identify unclaimed ids in ORCID.
 
 ## Usage
 
-1. Convert the report to CSV leaving the header row in place (the app skips this)
+1. Convert the report to CSV leaving the header row in place (the app skips this).
 2. Name it orcids.csv
 3. Copy it into the application folder.
 4. Retrieve the ORCID client id and client secret from LastPass.
@@ -33,3 +33,11 @@ The script will do the following:
 It takes a while to run.
 
 When it's done, send the two files to RST.
+
+## Gotchas
+
+If you see an error like this when trying to get the authentication token:
+
+```Error was SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed```
+
+Try the suggestions here: http://ruby-doc.org/stdlib-1.9.3/libdoc/csv/rdoc/CSV.html
