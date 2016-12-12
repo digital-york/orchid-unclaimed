@@ -40,4 +40,4 @@ If you see an error like this when trying to get the authentication token:
 
 ```Error was SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed```
 
-Try the suggestions here: http://ruby-doc.org/stdlib-1.9.3/libdoc/csv/rdoc/CSV.html
+Try the suggestions here: https://gist.github.com/fnichol/867550
